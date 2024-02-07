@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Findings Generator</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #loading {
+            display: none;
+        }
+
+        #findings {
+            margin-top: 20px;
+            text-align: left;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        .bold-pattern {
+            font-weight: bold;
+            color: #0066cc; /* Change the color to your preference */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Clinical Findings Generator</h1>
+        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <label for="file">Upload Text File:</label>
+            <input type="file" name="file" accept=".txt">
+            <button type="submit" onclick="showLoading()">Generate Findings</button>
+        </form>
+        <div id="loading">Generating findings. Please wait...</div>
+        <div id="findings">
+            <!-- Display generated findings here -->
+        </div>
+    </div>
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var formData = new FormData(this);
+
+            // Show loading indicator
+            showLoading();
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+                // Update the findings div with the generated text
+                document.getElementById('findings').innerHTML = applyStyles(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Hide loading indicator in case of an error
+                document.getElementById('loading').style.display = 'none';
+            });
+        });
+
+        function applyStyles(text) {
+            // Replace occurrences of ** with a new line
+            return text.replace(/\*\*/g, '<br>');
+        }
+    </script>
+</body>
+</html>
